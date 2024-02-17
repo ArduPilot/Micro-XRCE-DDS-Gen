@@ -1,6 +1,7 @@
 [submodule "thirdparty/IDL-Parser"]
-	path = thirdparty/IDL-Parser
-    url = https://github.com/eProsima/IDL-Parser.git
+    path = thirdparty/IDL-Parser
+    url = https://github.com/ArduPilot/OMG-IDL-Parser.git
+	branch = 2.0.x
 [submodule "thirdparty/IDL-Test-Types"]
 	path = thirdparty/IDL-Test-Types
 	url = https://github.com/eProsima/dds-types-test.git
