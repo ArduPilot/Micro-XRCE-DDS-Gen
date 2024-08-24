@@ -1,0 +1,66 @@
+# This workflow will build deb binary
+
+name: Build deb binary
+
+on:
+  release:
+    types: [published]
+
+  workflow_dispatch:
+
+jobs:
+  get-ref-name:
+    runs-on: ubuntu-latest
+    outputs:
+      ref_name: ${{ steps.get-ref-name.outputs.ref_name }}
+    steps:
+      - name: Get ref_name
+        id: get-ref-name
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            sanitized_ref=$(echo ${{ github.head_ref }} | sed 's/[^a-zA-Z0-9.]/-/g')
+          else
+            sanitized_ref=$(echo ${{ github.ref_name }} | sed 's/[^a-zA-Z0-9.]/-/g')
+          fi
+          echo "ref_name=$sanitized_ref"
+          echo "ref_name=$sanitized_ref" >> $GITHUB_OUTPUT || exit 1
+  build:
+    needs: get-ref-name
+    name: Build deb
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: src/microxrceddsgen
+          submodules: recursive
+
+      - uses: ./src/microxrceddsgen/.github/actions/install-apt-packages
+
+      - name: Get minimum supported version of CMake
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.16.3
+      - name: Use cmake
+        run: cmake --version
+
+      - name: Build microxrceddsgen
+        run: |
+          cd src/microxrceddsgen
+          ./gradlew assemble
+
+      - name: Test microxrceddsgen
+        run: |
+          cd src/microxrceddsgen
+          ./gradlew test -Dbranch=v2.3.0
+
+      - name : Build deb
+        run: |
+          cd src/microxrceddsgen
+          rm -rf .github
+          ./build-ap-microxrceddsgen-deb.sh ${{ needs.get-ref-name.outputs.ref_name }}
+
+      - name: "Publish to GitHub"
+        uses: softprops/action-gh-release@v2
+        with:
+          files: src/microxrceddsgen/ap_microxrceddsgen_*.deb

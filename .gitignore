@@ -48,3 +48,6 @@ gradle-app.setting
 
 # VSC
 .devcontainer
+
+# deb
+*.deb
