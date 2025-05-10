@@ -48,6 +48,13 @@ public class Context extends com.eprosima.idl.context.Context implements com.epr
         return m_typelimitation;
     }
 
+    public String getCScope()
+    {
+        String[] scopeTemp = getScope().split("::");
+        String scope = String.join("_", scopeTemp).replace("_Constants", "");
+        return scope;
+    }
+
     @Override
     public StructTypeCode createStructTypeCode(String name)
     {
