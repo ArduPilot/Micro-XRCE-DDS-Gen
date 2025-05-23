@@ -51,7 +51,15 @@ $definitions; separator="\n"$
 
 annotation(ctx, annotation) ::= <<>>
 const_decl(ctx, parent, const, const_type) ::= <<
-static const $const.typeCode.cppTypename$ $ctx.cScope$_$const.name$ = $const.value$;
+#ifndef __cplusplus
+  #define $const.name$ $const.value$
+#else
+  }  // end extern "C"
+  namespace $ctx.filename$ {
+      static constexpr $const.typeCode.cppTypename$ $const.name$ = $const.value$;
+  }
+  extern "C" {
+#endif
 >>
 
 typedef_decl(ctx, parent, typedefs, typedefs_type, declarator_type) ::= <<
