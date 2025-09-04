@@ -19,6 +19,8 @@ import org.stringtemplate.v4.ST;
 import com.eprosima.idl.generator.manager.TemplateST;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class Utils
 {
@@ -88,13 +90,31 @@ public class Utils
         try
         {
             File handle = new File(file);
+            Path handlePath = handle.toPath();
 
             if(!handle.exists() || replace)
             {
-                FileWriter fw = new FileWriter(file);
+                // assume we might race with someone else writing the same contents
+
+                // create in same directory as output so we can do an atomic rename
+                Path temp = Files.createTempFile(handlePath.getParent(), ".microxrceddsgen", null);
+
+                FileWriter fw = new FileWriter(temp.toFile());
                 String data = template.render();
                 fw.write(data, 0, data.length());
                 fw.close();
+
+                handle.delete(); // get rid of any old file, assuming it might be outdated
+                try
+                {
+                    Files.move(temp, handlePath, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+                }
+                catch(IOException e)
+                {
+                    // assume destination exists, in which case somebody wrote
+                    // the correct contents before us, so we don't need to do
+                    // anything
+                }
             }
             else
             {
