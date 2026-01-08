@@ -1,0 +1,12 @@
+Package: ap-microxrceddsgen
+Version: 2.0.2
+Priority: optional
+Architecture: all
+Section: misc
+Depends: default-jre | openjdk-11-jre
+Maintainer: ArduPilot <ardupilot@ardupilot.org>
+Description: eProsima Fast DDS Gen ArduPilot patched
+ eProsima Fast DDS Gen with ArduPilot Patch
+Homepage: https://github.com/ArduPilot/Micro-XRCE-DDS-Gen
+Conflicts: ap-microxrceddsgen
+Provides: ap-microxrceddsgen
